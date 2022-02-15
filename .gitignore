@@ -1,0 +1,11 @@
+# IntelliJ IDEA Folder
+/.idea/
+
+# Testing enviroment
+/src/test/
+
+/out/
+/target/
+
+config.json
+server.log
