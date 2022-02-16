@@ -1,18 +1,35 @@
 package com.cosmic5173.discordbot;
 
+import com.cosmic5173.discordbot.commands.DeployCommand;
+import com.cosmic5173.discordbot.commands.PingCommand;
 import com.cosmic5173.discordbot.utilities.BotConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.events.DisconnectEvent;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.AllowedMentions;
+import org.jetbrains.annotations.NotNull;
+import tech.xigam.cch.ComplexCommandHandler;
 
 import javax.security.auth.login.LoginException;
 import java.io.*;
+import java.util.EnumSet;
 
-public class Bot{
+public class Bot extends ListenerAdapter {
 
+    /** Bot Configuration built from config.json */
     private static BotConfiguration configuration;
+
+    /** Bot JDA Instance*/
+    private static JDA jda;
+
+    private static final ComplexCommandHandler commandHandler = new ComplexCommandHandler(true);
 
     static {
         File configFile = new File("config.json");
@@ -46,9 +63,9 @@ public class Bot{
         }
     }
 
-    public static void main(String[] args) throws LoginException {
+    public static void main(String[] args) {
         File file = new File("config.json");
-        if(!file.exists()) {
+        if (!file.exists()) {
             System.out.println("Config file not found. Exiting.");
             System.exit(1);
         }
@@ -57,15 +74,55 @@ public class Bot{
             FileReader reader = new FileReader(file);
             configuration = new Gson().fromJson(reader, BotConfiguration.class);
 
-            if(!configuration.version.matches(BotConfiguration.LATEST_VERSION))
+            if (!configuration.version.matches(BotConfiguration.LATEST_VERSION))
                 BotConfiguration.updateConfig(file, configuration);
         } catch (IOException ignored) {
             System.out.println("Unable to read config file. Exiting.");
             System.exit(1);
         }
 
-        JDABuilder.createLight(configuration.token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES)
-                .setActivity(Activity.playing("Getting that good development :)"))
-                .build();
+        commandHandler.setPrefix(";")
+                .registerCommand(new DeployCommand())
+                        .registerCommand(new PingCommand());
+
+        AllowedMentions.setDefaultMentionRepliedUser(false);
+
+        try {
+            jda = JDABuilder.createDefault(configuration.token, EnumSet.allOf(GatewayIntent.class))
+                    .addEventListeners(new Bot())
+                    .addEventListeners(commandHandler)
+                    .setActivity(Activity.watching("Cosmic's Room"))
+                    .setStatus(OnlineStatus.DO_NOT_DISTURB)
+                    .build().awaitReady();
+        } catch (LoginException | InterruptedException e) {
+            System.out.println("Error starting bot.");
+            e.printStackTrace(); System.exit(1);
+        }
+
+        commandHandler.setJda(jda);
+    }
+
+    @Override
+    public void onReady(@NotNull ReadyEvent event) {
+        System.out.println("Bot is logged in!");
+
+        commandHandler.deployAll(event.getJDA().getGuildById(configuration.allowedGuilds.get(0)));
+    }
+
+    @Override
+    public void onDisconnect(@NotNull DisconnectEvent event) {
+        commandHandler.downsert(event.getJDA().getGuildById(configuration.allowedGuilds.get(0)));
+    }
+
+    public static JDA getJda() {
+        return jda;
+    }
+
+    public static ComplexCommandHandler getCommandHandler() {
+        return commandHandler;
+    }
+
+    public static BotConfiguration getConfiguration() {
+        return configuration;
     }
 }

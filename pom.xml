@@ -18,13 +18,21 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.5</version>
+            <version>5.0.0-alpha.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>club.minnced</groupId>
                     <artifactId>opus-java</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- Magix's JDA Command Handler -->
+        <dependency>
+            <groupId>tech.xigam</groupId>
+            <artifactId>CCH</artifactId>
+            <version>1.1.1</version>
+            <scope>system</scope> <systemPath>${basedir}/libs/Complex_Command_Handler.jar</systemPath>
         </dependency>
 
         <!-- JSON Utilities -->

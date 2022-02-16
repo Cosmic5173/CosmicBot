@@ -4,13 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.*;
+import java.util.List;
 
 public class BotConfiguration {
 
-    public static final String LATEST_VERSION = "1.0.1";
+    public static final String LATEST_VERSION = "1.0.0";
 
     public String version = "1.0.0";
     public String token;
+    public String owner;
+    public List<String> allowedGuilds;
 
     public static void updateConfig(File existingConfig, BotConfiguration existingData) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
