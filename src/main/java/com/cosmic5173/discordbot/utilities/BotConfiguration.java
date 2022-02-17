@@ -17,10 +17,12 @@ public class BotConfiguration {
 
     public static void updateConfig(File existingConfig, BotConfiguration existingData) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        InputStream stream = classLoader.getResourceAsStream("config.json"); if (stream == null) return;
+        InputStream stream = classLoader.getResourceAsStream("config.json");
+        if (stream == null) return;
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        StringBuilder out = new StringBuilder(); String line;
+        StringBuilder out = new StringBuilder();
+        String line;
         while ((line = reader.readLine()) != null)
             out.append(line);
         reader.close();
@@ -31,7 +33,7 @@ public class BotConfiguration {
 
         // Update config file.
         BotConfiguration newConfiguration = new BotConfiguration();
-        if(existingData.token != null)
+        if (existingData.token != null)
             newConfiguration.token = existingData.token;
         else newConfiguration.token = defaultData.token;
 

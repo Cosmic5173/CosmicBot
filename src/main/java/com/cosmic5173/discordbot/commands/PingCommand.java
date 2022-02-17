@@ -8,6 +8,7 @@ public class PingCommand extends Command {
     public PingCommand() {
         super("ping", "Ping the bot to see latency.");
     }
+
     @Override
     public void execute(Interaction interaction) {
         long time = System.currentTimeMillis();
