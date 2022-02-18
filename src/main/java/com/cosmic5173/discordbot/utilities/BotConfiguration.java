@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 
 public class BotConfiguration {
 
@@ -14,6 +15,7 @@ public class BotConfiguration {
     public String token;
     public String owner;
     public List<String> allowedGuilds;
+    public Map<String, String> database;
 
     public static void updateConfig(File existingConfig, BotConfiguration existingData) throws IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();

@@ -23,13 +23,25 @@ public class AFKCreateSubcommand extends SubCommand implements Arguments {
     public void execute(Interaction interaction) {
         AFKModule module = Bot.getModuleManager().getAfkModule();
         if (module.isEnabled()) {
-            if (module.isAfk(interaction.getMember().getId())) {
-                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | AFK Module", "Your are currently AFK: ``" + module.getAFKMessage(interaction.getMember().getId()) + "``"));
-            } else {
-                String message = interaction.getArgument("message", String.class);
-                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | AFK Module", "You are now AFK: ``" + message + "``"));
-                module.addAFK(interaction.getMember().getId(), message);
-            }
+            String userId = interaction.getMember().getId();
+            module.isAfk(userId, (Boolean isAfk) -> {
+                if (isAfk) {
+                    module.getAFKMessage(userId, (String AFKMessage) -> {
+                        if(AFKMessage.equals(AFKModule.INVALID_USER) || AFKMessage.equals(AFKModule.SQL_ERROR)) {
+                            interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | AFK Module", "There was an issue, please try again later."));
+                        } else {
+                            interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | AFK Module", "Your are currently AFK: ``" + AFKMessage + "``"));
+                        }
+                    });
+                } else {
+                    String message = interaction.getArgument("message", String.class);
+                    if(!module.addAFK(interaction.getMember().getId(), message)) {
+                        interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | AFK Module", "There was an issue, please try again later."));
+                    } else {
+                        interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | AFK Module", "You are now AFK: ``" + message + "``"));
+                    }
+                }
+            });
         } else {
             interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | AFK Module", "The AFK Module is disabled."));
         }
