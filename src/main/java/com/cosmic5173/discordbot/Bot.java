@@ -5,6 +5,7 @@ import com.cosmic5173.discordbot.commands.ConfigCommand;
 import com.cosmic5173.discordbot.commands.DeployCommand;
 import com.cosmic5173.discordbot.commands.PingCommand;
 import com.cosmic5173.discordbot.modules.AFKModule;
+import com.cosmic5173.discordbot.modules.JoinModule;
 import com.cosmic5173.discordbot.modules.Module;
 import com.cosmic5173.discordbot.modules.ModuleManager;
 import com.cosmic5173.discordbot.provider.DataProvider;
@@ -14,13 +15,13 @@ import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.ChannelType;
-import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.jetbrains.annotations.NotNull;
 import tech.xigam.cch.ComplexCommandHandler;
 
@@ -153,9 +154,36 @@ public class Bot extends ListenerAdapter {
                 for (Member member : event.getMessage().getMentionedMembers()) {
                     ((AFKModule) module).isAfk(member.getId(), (Boolean isAfk) -> {
                         if(isAfk)
-                            ((AFKModule) module).getAFKMessage(member.getId(), (String AFKMessage) -> event.getMessage().reply("``"+(member.getNickname() == null ? member.getUser().getName() : member.getNickname())+"`` is currently AFK: ``"+AFKMessage+"``\n").queue());
+                            ((AFKModule) module).getAFKMessage(member.getId(), (String AFKMessage) -> event.getMessage().reply("``"+(member.getNickname() == null ? member.getUser().getName() : member.getNickname())+"`` is currently AFK: ``"+AFKMessage+"``\n").mentionRepliedUser(false).queue());
                     });
                 }
+            }
+        });
+    }
+
+    @Override
+    public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
+        moduleManager.getGuildModule(event.getGuild().getId(), ModuleManager.ModuleIds.JOIN, (Module module) -> {
+            Guild guild = event.getGuild();
+            JoinModule.JoinSettings settings = ((JoinModule) module).getSettings();
+            if (event.getMember().getUser().isBot() && !settings.trackBots) return;
+
+            if (settings.giveRole) {
+                Role role = guild.getRoleById(settings.role);
+                if (role != null) {
+                    guild.addRoleToMember(event.getMember(), role).queue();
+                }
+            }
+
+            if(settings.sendPublicMessage) {
+                TextChannel channel = guild.getTextChannelById(settings.messageChannel);
+                if (channel != null) {
+                    channel.sendMessage(settings.publicMessage).queue();
+                }
+            }
+
+            if(settings.sendDM) {
+                event.getMember().getUser().openPrivateChannel().queue(privateChannel -> {privateChannel.sendMessage(settings.DMMessage).queue();});
             }
         });
     }

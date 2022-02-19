@@ -15,16 +15,16 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
-public class ConfigSettingsSubcommand extends SubCommand implements Arguments {
+public class ConfigModulesSubcommand extends SubCommand implements Arguments {
 
-    public ConfigSettingsSubcommand() {
+    public ConfigModulesSubcommand() {
         super("modules", "Configure bot modules.");
     }
 
     @Override
     public Collection<Argument> getArguments() {
         return List.of(
-                Argument.createWithChoices("modules", "Select a module.", "modules", OptionType.STRING, true, 0, "afk module"),
+                Argument.createWithChoices("modules", "Select a module.", "modules", OptionType.STRING, true, 0, String.valueOf(Bot.getModuleManager().getModuleRegistry().keySet())),
                 Argument.create("enabled", "Set whether the module is enabled or disabled.", "enabled", OptionType.BOOLEAN, false, 1)
         );
     }
