@@ -1,7 +1,6 @@
 package com.cosmic5173.discordbot.modules;
 
 import com.cosmic5173.discordbot.Bot;
-import net.dv8tion.jda.api.JDA;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,8 +12,8 @@ public class AFKModule extends Module{
     public static String INVALID_USER = "0";
     public static String SQL_ERROR = "1";
 
-    public AFKModule(JDA jda) {
-        super(jda);
+    public AFKModule(String guild) {
+        super(guild);
     }
 
     public void isAfk(String userId, Consumer<Boolean> callable) {
@@ -71,5 +70,10 @@ public class AFKModule extends Module{
             e.printStackTrace();
             callable.accept(SQL_ERROR);
         }
+    }
+
+    @Override
+    public String getId() {
+        return "afk_module";
     }
 }

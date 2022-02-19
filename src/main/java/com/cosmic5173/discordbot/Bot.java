@@ -5,10 +5,10 @@ import com.cosmic5173.discordbot.commands.ConfigCommand;
 import com.cosmic5173.discordbot.commands.DeployCommand;
 import com.cosmic5173.discordbot.commands.PingCommand;
 import com.cosmic5173.discordbot.modules.AFKModule;
+import com.cosmic5173.discordbot.modules.Module;
 import com.cosmic5173.discordbot.modules.ModuleManager;
 import com.cosmic5173.discordbot.provider.DataProvider;
 import com.cosmic5173.discordbot.utilities.BotConfiguration;
-import com.cosmic5173.discordbot.utilities.EmbedUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -17,13 +17,10 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.DisconnectEvent;
-import net.dv8tion.jda.api.events.GatewayPingEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.AllowedMentions;
 import org.jetbrains.annotations.NotNull;
 import tech.xigam.cch.ComplexCommandHandler;
 
@@ -110,8 +107,6 @@ public class Bot extends ListenerAdapter {
                 .registerCommand(new AFKCommand())
                 .registerCommand(new ConfigCommand());
 
-        AllowedMentions.setDefaultMentionRepliedUser(false);
-
         try {
             jda = JDABuilder.createDefault(configuration.token, EnumSet.allOf(GatewayIntent.class))
                     .addEventListeners(new Bot())
@@ -122,7 +117,8 @@ public class Bot extends ListenerAdapter {
 
             commandHandler.setJda(jda);
 
-            moduleManager = new ModuleManager(jda);
+            moduleManager = new ModuleManager()
+                    .registerModule("afk_module", AFKModule.class);
 
             Map<String, String> databaseDetails = configuration.database;
             dataProvider = new DataProvider();
@@ -149,17 +145,19 @@ public class Bot extends ListenerAdapter {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if(event.getAuthor().isBot()) return;
 
-        AFKModule module = moduleManager.getAfkModule();
-        if (!module.isEnabled()) return;
+        moduleManager.getGuildModule(event.getGuild().getId(), ModuleManager.ModuleIds.AFK_MODULE, (Module module) -> {
+            if(module == null) return;
+            if (!module.isEnabled()) return;
 
-        if(event.getChannelType() != ChannelType.PRIVATE) {
-            for (Member member : event.getMessage().getMentionedMembers()) {
-                module.isAfk(member.getId(), (Boolean isAfk) -> {
-                    if(isAfk)
-                        module.getAFKMessage(member.getId(), (String AFKMessage) -> event.getMessage().reply("``"+(member.getNickname() == null ? member.getUser().getName() : member.getNickname())+"`` is currently AFK: ``"+AFKMessage+"``\n").queue());
-                });
+            if(event.getChannelType() != ChannelType.PRIVATE) {
+                for (Member member : event.getMessage().getMentionedMembers()) {
+                    ((AFKModule) module).isAfk(member.getId(), (Boolean isAfk) -> {
+                        if(isAfk)
+                            ((AFKModule) module).getAFKMessage(member.getId(), (String AFKMessage) -> event.getMessage().reply("``"+(member.getNickname() == null ? member.getUser().getName() : member.getNickname())+"`` is currently AFK: ``"+AFKMessage+"``\n").queue());
+                    });
+                }
             }
-        }
+        });
     }
 
     public static JDA getJDA() {
