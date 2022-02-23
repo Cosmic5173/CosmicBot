@@ -119,7 +119,8 @@ public class Bot extends ListenerAdapter {
             commandHandler.setJda(jda);
 
             moduleManager = new ModuleManager()
-                    .registerModule("afk_module", AFKModule.class);
+                    .registerModule("afk_module", AFKModule.class)
+                    .registerModule("join_module", JoinModule.class);
 
             Map<String, String> databaseDetails = configuration.database;
             dataProvider = new DataProvider();
