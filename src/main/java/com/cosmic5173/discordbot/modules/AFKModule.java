@@ -9,8 +9,10 @@ import java.util.function.Consumer;
 
 public class AFKModule extends Module{
 
-    public static String INVALID_USER = "0";
-    public static String SQL_ERROR = "1";
+    public static final String IDENTIFIER = "afk_module";
+
+    public static final String INVALID_USER = "0";
+    public static final String SQL_ERROR = "1";
 
     public AFKModule(String guild) {
         super(guild);
@@ -74,6 +76,6 @@ public class AFKModule extends Module{
 
     @Override
     public String getId() {
-        return "afk_module";
+        return IDENTIFIER;
     }
 }

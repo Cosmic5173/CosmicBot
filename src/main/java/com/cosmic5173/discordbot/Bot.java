@@ -4,11 +4,11 @@ import com.cosmic5173.discordbot.commands.AFKCommand;
 import com.cosmic5173.discordbot.commands.ConfigCommand;
 import com.cosmic5173.discordbot.commands.DeployCommand;
 import com.cosmic5173.discordbot.commands.PingCommand;
-import com.cosmic5173.discordbot.modules.AFKModule;
-import com.cosmic5173.discordbot.modules.JoinModule;
+import com.cosmic5173.discordbot.modules.*;
 import com.cosmic5173.discordbot.modules.Module;
-import com.cosmic5173.discordbot.modules.ModuleManager;
 import com.cosmic5173.discordbot.provider.DataProvider;
+import com.cosmic5173.discordbot.session.SessionManager;
+import com.cosmic5173.discordbot.session.VerificationSession;
 import com.cosmic5173.discordbot.utilities.BotConfiguration;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -119,8 +119,9 @@ public class Bot extends ListenerAdapter {
             commandHandler.setJda(jda);
 
             moduleManager = new ModuleManager()
-                    .registerModule("afk_module", AFKModule.class)
-                    .registerModule("join_module", JoinModule.class);
+                    .registerModule(AFKModule.IDENTIFIER, AFKModule.class)
+                    .registerModule(JoinModule.IDENTIFIER, JoinModule.class)
+                    .registerModule(VerificationModule.IDENTIFIER, VerificationModule.class);
 
             Map<String, String> databaseDetails = configuration.database;
             dataProvider = new DataProvider();
@@ -147,7 +148,7 @@ public class Bot extends ListenerAdapter {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if(event.getAuthor().isBot()) return;
 
-        moduleManager.getGuildModule(event.getGuild().getId(), ModuleManager.ModuleIds.AFK_MODULE, (Module module) -> {
+        moduleManager.getGuildModule(event.getGuild().getId(), AFKModule.IDENTIFIER, (Module module) -> {
             if(module == null) return;
             if (!module.isEnabled()) return;
 
@@ -164,7 +165,7 @@ public class Bot extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
-        moduleManager.getGuildModule(event.getGuild().getId(), ModuleManager.ModuleIds.JOIN, (Module module) -> {
+        moduleManager.getGuildModule(event.getGuild().getId(), JoinModule.IDENTIFIER, (Module module) -> {
             Guild guild = event.getGuild();
             JoinModule.JoinSettings settings = ((JoinModule) module).getSettings();
             if (event.getMember().getUser().isBot() && !settings.trackBots) return;
@@ -185,6 +186,18 @@ public class Bot extends ListenerAdapter {
 
             if(settings.sendDM) {
                 event.getMember().getUser().openPrivateChannel().queue(privateChannel -> {privateChannel.sendMessage(settings.DMMessage).queue();});
+            }
+        });
+
+        moduleManager.getGuildModule(event.getGuild().getId(), VerificationModule.IDENTIFIER, (Module module) -> {
+            try {
+                VerificationSession session = SessionManager.createVerificationSession(VerificationSession.create(
+                        event.getGuild().getId(),
+                        event.getUser().getId(),
+                        VerificationSession.generateCode()
+                ));
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         });
     }

@@ -23,7 +23,7 @@ public class AFKCreateSubcommand extends SubCommand implements Arguments {
 
     @Override
     public void execute(Interaction interaction) {
-        Bot.getModuleManager().getGuildModule(interaction.getGuild().getId(), ModuleManager.ModuleIds.AFK_MODULE, (Module module) -> {
+        Bot.getModuleManager().getGuildModule(interaction.getGuild().getId(), AFKModule.IDENTIFIER, (Module module) -> {
             if (module.isEnabled()) {
                 String userId = interaction.getMember().getId();
                 ((AFKModule) module).isAfk(userId, (Boolean isAfk) -> {

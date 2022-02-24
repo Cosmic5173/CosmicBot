@@ -25,7 +25,7 @@ public class JoinModuleSettingsCommand extends SubCommand implements Arguments {
         assert interaction.getMessage() != null;
         interaction.setEphemeral(true);
 
-        Bot.getModuleManager().getGuildModule(interaction.getGuild().getId(), "join_module", (Module module) -> {
+        Bot.getModuleManager().getGuildModule(interaction.getGuild().getId(), JoinModule.IDENTIFIER, (Module module) -> {
             if (module.isEnabled()) {
                 if (interaction.getMember().hasPermission(Permission.ADMINISTRATOR)) {
                     try {

@@ -79,9 +79,4 @@ public class ModuleManager {
             }
         }
     }
-
-    public static class ModuleIds {
-        public static final String AFK_MODULE = "afk_module";
-        public static final String JOIN = "join_module";
-    }
 }

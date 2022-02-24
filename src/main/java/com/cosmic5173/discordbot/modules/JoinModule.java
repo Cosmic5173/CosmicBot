@@ -12,6 +12,8 @@ import java.util.function.Consumer;
 
 public class JoinModule extends Module {
 
+    public static final String IDENTIFIER = "join_module";
+
     public static final String DEFAULT_SETTINGS = "{\"trackBots\":false,\"giveRole\":false,\"role\":\"\",\"sendPublicMessage\":false,\"messageChannel\":\"\",\"publicMessage\":\"\",\"sendDm\":false,\"DMMessage\":\"\"}";
 
     private JoinSettings settings;
@@ -47,7 +49,7 @@ public class JoinModule extends Module {
 
     @Override
     public String getId() {
-        return "join_module";
+        return IDENTIFIER;
     }
 
     public static class JoinSettings {
