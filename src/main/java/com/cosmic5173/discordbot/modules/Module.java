@@ -15,7 +15,6 @@ public abstract class Module {
     private boolean enabled = true;
 
     private final String guild;
-    private final Map<String, Object> moduleSettings = new HashMap<>();
 
     public Module(String guild) {
         this.guild = guild;
@@ -49,9 +48,5 @@ public abstract class Module {
         Statement stmt = connection.createStatement();
         stmt.execute("UPDATE GuildModules SET "+getId()+"='"+(enabled ? 1 : 0)+"' WHERE guildId='"+guild+"';");
         this.enabled = enabled;
-    }
-
-    public Map<String, Object> getModuleSettings() {
-        return moduleSettings;
     }
 }

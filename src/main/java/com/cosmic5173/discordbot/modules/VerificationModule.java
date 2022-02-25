@@ -13,7 +13,7 @@ public class VerificationModule extends Module {
 
     public static final String IDENTIFIER = "verification_module";
 
-    public static final String DEFAULT_SETTINGS = "{\"unverifiedRole\":\"\",\"verifiedRole\":\"\",\"verificationMethod\":0,\"verificationChannel\":\"\",\"verificationMessage\":\"\"}";
+    public static final String DEFAULT_SETTINGS = "{\"unverifiedRole\":\"\",\"verifiedRole\":\"\",\"verificationMethod\":0,\"verificationChannel\":\"\",\"verificationMessage\":\"\",\"verificationEmoji\":\"\"}";
 
     private VerificationSettings settings;
 
@@ -62,5 +62,9 @@ public class VerificationModule extends Module {
         public int verificationMethod;
         public String verificationChannel;
         public String verificationMessage;
+        public String verificationEmoji;
+        public String DMMessageContent;
+        public String successMessageContent;
+        public String failMessageContent;
     }
 }

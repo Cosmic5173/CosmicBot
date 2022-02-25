@@ -37,49 +37,47 @@ public class JoinModuleSettingsCommand extends SubCommand implements Arguments {
                             return;
                         }
                         switch (setting) {
-                            case "track-bots":
+                            case "track-bots" -> {
                                 ((JoinModule) module).getSettings().trackBots = Boolean.parseBoolean(value);
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Track Bots set to: ``"+((JoinModule) module).getSettings().trackBots+"``"));
-                                break;
-                            case "do-give-role":
+                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Track Bots set to: ``" + ((JoinModule) module).getSettings().trackBots + "``"));
+                            }
+                            case "do-give-role" -> {
                                 ((JoinModule) module).getSettings().giveRole = Boolean.parseBoolean(value);
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Give Role set to: ``"+((JoinModule) module).getSettings().giveRole+"``"));
-                                break;
-                            case "give-role-id":
+                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Give Role set to: ``" + ((JoinModule) module).getSettings().giveRole + "``"));
+                            }
+                            case "give-role-id" -> {
                                 ((JoinModule) module).getSettings().role = value.trim();
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Role ID set to: ``"+((JoinModule) module).getSettings().role+"``"));
-                                break;
-                            case "do-send-public-join-message":
+                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Role ID set to: ``" + ((JoinModule) module).getSettings().role + "``"));
+                            }
+                            case "do-send-public-join-message" -> {
                                 ((JoinModule) module).getSettings().sendPublicMessage = Boolean.parseBoolean(value);
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Send Public Message set to: ``"+((JoinModule) module).getSettings().sendPublicMessage+"``"));
-                                break;
-                            case "public-message-channel-id":
+                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Send Public Message set to: ``" + ((JoinModule) module).getSettings().sendPublicMessage + "``"));
+                            }
+                            case "public-message-channel-id" -> {
                                 ((JoinModule) module).getSettings().messageChannel = value.trim();
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Message Channel ID set to: ``"+((JoinModule) module).getSettings().messageChannel+"``"));
-                                break;
-                            case "public-message-content":
+                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Message Channel ID set to: ``" + ((JoinModule) module).getSettings().messageChannel + "``"));
+                            }
+                            case "public-message-content" -> {
                                 ((JoinModule) module).getSettings().publicMessage = value.trim();
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Public Message Content set to: ``"+((JoinModule) module).getSettings().publicMessage+"``"));
-                                break;
-                            case "do-send-join-DM":
+                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Public Message Content set to: ``" + ((JoinModule) module).getSettings().publicMessage + "``"));
+                            }
+                            case "do-send-join-DM" -> {
                                 ((JoinModule) module).getSettings().sendDM = Boolean.parseBoolean(value);
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Send DM set to: ``"+((JoinModule) module).getSettings().sendDM+"``"));
-                                break;
-                            case "DM-message-content":
+                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Send DM set to: ``" + ((JoinModule) module).getSettings().sendDM + "``"));
+                            }
+                            case "DM-message-content" -> {
                                 ((JoinModule) module).getSettings().DMMessage = value.trim();
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "DM Message Content set to: ``"+((JoinModule) module).getSettings().DMMessage+"``"));
-                                break;
-                            case "list":
-                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Track Bots set to: ``" + ((JoinModule) module).getSettings().trackBots + "``\n"
-                                        +"Give Role set to: ``"+((JoinModule) module).getSettings().giveRole+"``\n"
-                                        +"Role ID set to: ``"+((JoinModule) module).getSettings().role+"``\n"
-                                        +"Send Public Message set to: ``"+((JoinModule) module).getSettings().sendPublicMessage+"``\n"
-                                        +"Message Channel ID set to: ``"+((JoinModule) module).getSettings().messageChannel+"``\n"
-                                        +"Public Message Content set to: ``"+((JoinModule) module).getSettings().publicMessage+"``\n"
-                                        +"Send DM set to: ``"+((JoinModule) module).getSettings().sendDM+"``\n"
-                                        +"DM Message Content set to: ``"+((JoinModule) module).getSettings().DMMessage+"``"
-                                ));
-                                break;
+                                interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "DM Message Content set to: ``" + ((JoinModule) module).getSettings().DMMessage + "``"));
+                            }
+                            case "list" -> interaction.reply(EmbedUtils.defaultEmbed("CosmicBot | Join Module", "Track Bots set to: ``" + ((JoinModule) module).getSettings().trackBots + "``\n"
+                                    + "Give Role set to: ``" + ((JoinModule) module).getSettings().giveRole + "``\n"
+                                    + "Role ID set to: ``" + ((JoinModule) module).getSettings().role + "``\n"
+                                    + "Send Public Message set to: ``" + ((JoinModule) module).getSettings().sendPublicMessage + "``\n"
+                                    + "Message Channel ID set to: ``" + ((JoinModule) module).getSettings().messageChannel + "``\n"
+                                    + "Public Message Content set to: ``" + ((JoinModule) module).getSettings().publicMessage + "``\n"
+                                    + "Send DM set to: ``" + ((JoinModule) module).getSettings().sendDM + "``\n"
+                                    + "DM Message Content set to: ``" + ((JoinModule) module).getSettings().DMMessage + "``"
+                            ));
                         }
 
                         ((JoinModule) module).updateSettings();

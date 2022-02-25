@@ -1,5 +1,8 @@
 package com.cosmic5173.discordbot.session;
 
+import com.cosmic5173.discordbot.Bot;
+import com.google.gson.Gson;
+
 import java.sql.SQLException;
 import java.util.Random;
 
@@ -9,14 +12,21 @@ public class VerificationSession {
 
     private String guildId;
     private String userId;
-    private String code;
-    private int attempts = 0;
+    private VerificationSessionData sessionData;
 
-    public static VerificationSession create(String guildId, String userId, String code) {
+    public static VerificationSession create(String guildId, String userId, String code, int attempt) {
         VerificationSession session = new VerificationSession();
         session.guildId = guildId;
         session.userId = userId;
-        session.code = code;
+        session.sessionData = VerificationSessionData.create(code, attempt);
+        return session;
+    }
+
+    public static VerificationSession create(String guildId, String userId, VerificationSessionData data) {
+        VerificationSession session = new VerificationSession();
+        session.guildId = guildId;
+        session.userId = userId;
+        session.sessionData = data;
         return session;
     }
 
@@ -28,12 +38,16 @@ public class VerificationSession {
         return userId;
     }
 
+    public VerificationSessionData getSessionData() {
+        return sessionData;
+    }
+
     public String getCode() {
-        return code;
+        return sessionData.code;
     }
 
     public int getAttempts() {
-        return attempts;
+        return sessionData.attempt;
     }
 
     public int getMaxAttempts() {
@@ -58,12 +72,32 @@ public class VerificationSession {
         return code.toString();
     }
 
-    public void useNewCode(String code) throws SQLException {
-        attempts++;
-        //TODO: Implement.
+    public String createNewCode() throws SQLException {
+        sessionData.attempt++;
+        sessionData.code = generateCode();
+
+        Bot.getDataProvider().getConnection().createStatement().execute("UPDATE VerificationSession SET sessionData='"+sessionData.toString()+"' WHERE userId='"+userId+"' AND guildId='"+guildId+"';");
+        return sessionData.code;
     }
 
     public boolean validateEntry(String message) {
-        return message.trim().equals(code);
+        return message.trim().equals(sessionData.code);
+    }
+
+    public static class VerificationSessionData {
+        public String code;
+        public int attempt;
+
+        public static VerificationSessionData create(String code, int attempt) {
+            VerificationSessionData data = new VerificationSessionData();
+            data.code = code;
+            data.attempt = attempt;
+            return data;
+        }
+
+        @Override
+        public String toString() {
+            return new Gson().toJson(this);
+        }
     }
 }
