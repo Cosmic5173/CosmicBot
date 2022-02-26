@@ -66,5 +66,6 @@ public class VerificationModule extends Module {
         public String DMMessageContent;
         public String successMessageContent;
         public String failMessageContent;
+        public String kickMessageContent;
     }
 }
