@@ -15,21 +15,25 @@ public class SessionManager {
     public static Map<String, Map<String, VerificationSession>> verificationSessions = new HashMap<>();
 
     public static void getVerificationSession(String userId, String guildId, Consumer<VerificationSession> callback) throws SQLException {
-        if (verificationSessions.containsKey(userId)) {
+        if (verificationSessions.containsKey(userId) && verificationSessions.get(userId).containsKey(guildId)) {
             callback.accept(verificationSessions.get(userId).get(guildId));
         } else {
-            Statement stmt = Bot.getDataProvider().getConnection().createStatement();
-            ResultSet resultSet = stmt.executeQuery("SELECT * FROM VerificationSession WHERE userId='"+userId+"';");
-            Map<String, VerificationSession> sessionMap = new HashMap<>();
-
-            while (resultSet.next()) {
-                VerificationSession session = VerificationSession.create(resultSet.getString("guildId"), resultSet.getString("userId"), new Gson().fromJson(resultSet.getString("sessionData"), VerificationSession.VerificationSessionData.class));
-                sessionMap.put(session.getGuildId(), session);
-            }
-
-            verificationSessions.put(userId, sessionMap);
-            callback.accept(sessionMap.get(guildId));
+            getAllVerificationSessions(userId, (Map<String, VerificationSession> sessionMap) -> callback.accept(sessionMap.get(guildId)));
         }
+    }
+
+    public static void getAllVerificationSessions(String userId, Consumer<Map<String, VerificationSession>> callback) throws SQLException {
+        Statement stmt = Bot.getDataProvider().getConnection().createStatement();
+        ResultSet resultSet = stmt.executeQuery("SELECT * FROM VerificationSession WHERE userId='" + userId + "';");
+        Map<String, VerificationSession> sessionMap = new HashMap<>();
+
+        while (resultSet.next()) {
+            VerificationSession session = VerificationSession.create(resultSet.getString("guildId"), resultSet.getString("userId"), new Gson().fromJson(resultSet.getString("sessionData"), VerificationSession.VerificationSessionData.class));
+            sessionMap.put(session.getGuildId(), session);
+        }
+
+        verificationSessions.put(userId, sessionMap);
+        callback.accept(sessionMap);
     }
 
     public static void createVerificationSession(VerificationSession session) throws SQLException {

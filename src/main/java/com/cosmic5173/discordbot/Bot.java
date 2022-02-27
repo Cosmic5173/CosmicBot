@@ -170,35 +170,40 @@ public class Bot extends ListenerAdapter {
 
         if(event.getChannelType() != ChannelType.PRIVATE) return;
         try {
-            SessionManager.getVerificationSession(member.getId(), guild.getId(), (VerificationSession session) -> {
-                if (session != null) {
-                    moduleManager.getGuildModule(guild.getId(), VerificationModule.IDENTIFIER, (Module module) -> {
-                        if (module.isEnabled()) {
-                            if (session.validateEntry(event.getMessage().getContentRaw())) {
-                                event.getMessage().reply(new MessageBuilder().setContent(((VerificationModule) module).getSettings().successMessageContent).build()).queue();
+            SessionManager.getAllVerificationSessions(member.getId(), (Map<String, VerificationSession> sessionMap) -> {
+                for (VerificationSession session : sessionMap.values()) {
+                    if (session != null) {
+                        Guild sessionGuild = Bot.getJDA().getGuildById(session.getGuildId());
+                        if (sessionGuild == null) continue;
 
-                                Role unverified = guild.getRoleById(((VerificationModule) module).getSettings().unverifiedRole);
-                                Role verified = guild.getRoleById(((VerificationModule) module).getSettings().verifiedRole);
-                                if (unverified != null && verified != null) {
-                                    guild.addRoleToMember(member.getId(), verified).queue();
-                                    guild.removeRoleFromMember(member.getId(), unverified).queue();
-                                }
-                            } else {
-                                if (session.getMaxAttempts() - session.getAttempts() < 0) {
-                                    event.getMessage().reply(new MessageBuilder().setContent(((VerificationModule) module).getSettings().kickMessageContent).build()).queue();
-                                    guild.kick(member).queue();
+                        moduleManager.getGuildModule(sessionGuild.getId(), VerificationModule.IDENTIFIER, (Module module) -> {
+                            if (module.isEnabled()) {
+                                if (session.validateEntry(event.getMessage().getContentRaw())) {
+                                    event.getMessage().reply(new MessageBuilder().setContent(((VerificationModule) module).getSettings().successMessageContent).build()).queue();
+
+                                    Role unverified = sessionGuild.getRoleById(((VerificationModule) module).getSettings().unverifiedRole);
+                                    Role verified = sessionGuild.getRoleById(((VerificationModule) module).getSettings().verifiedRole);
+                                    if (unverified != null && verified != null) {
+                                        sessionGuild.addRoleToMember(member.getId(), verified).queue();
+                                        sessionGuild.removeRoleFromMember(member.getId(), unverified).queue();
+                                    }
                                 } else {
-                                    try {
-                                        String newCode = session.createNewCode();
-                                        event.getMessage().reply(new MessageBuilder().setContent(((VerificationModule) module).getSettings().failMessageContent.replace("{code}", newCode).replace("{attempts}", Integer.toString(session.getMaxAttempts() - session.getAttempts() + 1))).build()).queue();
-                                    } catch (SQLException e) {
-                                        event.getMessage().reply(new MessageBuilder().setEmbeds(EmbedUtils.defaultEmbed("CosmicBot | Verification Module", "There was an issue with the verification system, please try again later.")).build()).queue();
-                                        e.printStackTrace();
+                                    if (session.getMaxAttempts() - session.getAttempts() < 0) {
+                                        event.getMessage().reply(new MessageBuilder().setContent(((VerificationModule) module).getSettings().kickMessageContent).build()).queue();
+                                        sessionGuild.kick(member).queue();
+                                    } else {
+                                        try {
+                                            String newCode = session.createNewCode();
+                                            event.getMessage().reply(new MessageBuilder().setContent(((VerificationModule) module).getSettings().failMessageContent.replace("{code}", newCode).replace("{attempts}", Integer.toString(session.getMaxAttempts() - session.getAttempts() + 1))).build()).queue();
+                                        } catch (SQLException e) {
+                                            event.getMessage().reply(new MessageBuilder().setEmbeds(EmbedUtils.defaultEmbed("CosmicBot | Verification Module", "There was an issue with the verification system, please try again later.")).build()).queue();
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             });
         } catch (SQLException e) {
