@@ -24,7 +24,7 @@ public class ConfigModulesSubcommand extends SubCommand implements Arguments {
     @Override
     public Collection<Argument> getArguments() {
         return List.of(
-                Argument.createWithChoices("modules", "Select a module.", "modules", OptionType.STRING, true, 0, AFKModule.IDENTIFIER, JoinModule.IDENTIFIER, VerificationModule.IDENTIFIER),
+                Argument.createWithChoices("modules", "Select a module.", "modules", OptionType.STRING, true, 0, AFKModule.IDENTIFIER, JoinModule.IDENTIFIER, VerificationModule.IDENTIFIER, SnipeModule.IDENTIFIER),
                 Argument.create("enabled", "Set whether the module is enabled or disabled.", "enabled", OptionType.BOOLEAN, false, 1)
         );
     }

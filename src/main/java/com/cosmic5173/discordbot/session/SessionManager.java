@@ -49,7 +49,7 @@ public class SessionManager {
     }
 
     public static void removeVerificationSession(String userId, String guildId) throws SQLException {
-        verificationSessions.get(userId).remove(guildId);
+        if(verificationSessions.containsKey(userId)) verificationSessions.get(userId).remove(guildId);
         Statement stmt = Bot.getDataProvider().getConnection().createStatement();
         stmt.execute("DELETE FROM VerificationSession WHERE userId='"+userId+"' AND guildId='"+guildId+"';");
     }
