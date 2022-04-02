@@ -1,2 +1,2 @@
 # CosmicBot
-Discord bot written in JDA for myself.
+Moved to: https://github.com/CosmicBotOfficial
